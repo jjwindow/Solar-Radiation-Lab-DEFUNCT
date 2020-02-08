@@ -44,12 +44,21 @@ class EpochObj:
         """
         return self.eeg
 
-    def plotEpoch(self):
+    def plotEpoch(self, show = True, colour = None):
         """
         Show a plot of the time series data.
         """
+        if colour is not None:
+            if type(colour) is not str:
+                raise TypeError("Colour must be a valid rcParams colour as a string.")
+            else:
+                plt.rcParams['lines.color'] = colour
+
+            
         fig = plt.plot(self.t, self.eeg)
-        fig.show()
+        plt.plot(self.t, self.eeg)
+        if show == True:
+            plt.show()
         return fig
     
     def epochNum_return(self):
@@ -58,7 +67,7 @@ class EpochObj:
         """
         return self.epochNum
 
-def assembleData(filename = 'testdata.csv'): 
+def assembleData(filename = 'test_data.csv'): 
     """
     Function to read data from a pre-organised CSV into a list of epoch objects, each containing
     all time-series measurements in that epoch. CSV is assumed to be of the format ->
@@ -71,22 +80,24 @@ def assembleData(filename = 'testdata.csv'):
          .  |     .     |       .
         TN  |     N_e   |       XN           <- For N data points (N_e is number of epochs)
     ----------------------------------
-
-
     """      
     with open(filename) as eeg:
         readEEG = csv.reader(eeg, delimiter=',')
-        epochNums = set([row[1] for row in readEEG])
         epochsList = []
+        t = []
+        epoch = []
+        eeg = []
 
         for row in readEEG:
             # Populate column arrays with data from CSV
-            _t = row[0]
-            _epoch = row[1]
-            _eeg = row[2]
+            _t = float(row[0])
+            _epoch = int(row[1])
+            _eeg = float(row[2])
             t.append(_t)
             epoch.append(_epoch)
             eeg.append(_eeg)
+
+        epochNums = set(epoch)
 
         for n in epochNums:
             # Instantiate each epoch
@@ -94,14 +105,26 @@ def assembleData(filename = 'testdata.csv'):
             # Point in array where epoch first equals n
             # Assumes t, eeg, and epoch are all ordered in ascending time (hence epoch)
             # and that indices align (i.e - dataset is complete.)
-            e = epoch.index[n]
+            e = epoch.index(n)
+            N = len(epoch)
             # Loop through all datapoints for epoch n
-            while epoch[e] == n:
+            while (epoch[e] == n) and (e != N-1):
                 # Populate epoch object with data.
                 NewEpoch.insert(t[e], eeg[e])
                 e += 1
             epochsList.append(NewEpoch)
     return epochsList
             
+def plotAllEpochs(epochsList):
+    for epoch in epochsList:
+        epoch.plotEpoch(show = False, colour = 'black')
+    plt.show()
 
-        
+
+
+### TESTING ###
+
+epochsList = assembleData()
+# epochsList[0].plotEpoch()
+
+plotAllEpochs(epochsList)
