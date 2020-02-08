@@ -6,6 +6,8 @@ Attempt at implementing feature extraction and processing techniques for EEG sig
 
 TO DO
 - Implement feature interrogation methods
+- Change colour of plot lines when plotting complete set
+- Group epochs, new epoch durations ~>10s
 
 """
 
